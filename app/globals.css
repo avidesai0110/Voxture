@@ -3,55 +3,147 @@
 @tailwind utilities;
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222 47% 11%;
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
-  --primary: 221 83% 53%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222 47% 11%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
-  --accent: 210 40% 96%;
-  --accent-foreground: 222 47% 11%;
+  --background: 12 7% 13%;
+  --foreground: 60 20% 98%;
+  --card: 12 7% 16%;
+  --card-foreground: 60 20% 98%;
+  --popover: 12 7% 16%;
+  --popover-foreground: 60 20% 98%;
+  --primary: 184 63% 34%;
+  --primary-foreground: 60 20% 98%;
+  --secondary: 12 7% 20%;
+  --secondary-foreground: 60 20% 98%;
+  --muted: 12 7% 20%;
+  --muted-foreground: 60 5% 65%;
+  --accent: 184 63% 34%;
+  --accent-foreground: 60 20% 98%;
   --destructive: 0 84% 60%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 221 83% 53%;
+  --destructive-foreground: 60 20% 98%;
+  --border: 12 7% 22%;
+  --input: 12 7% 22%;
+  --ring: 184 63% 34%;
   --radius: 0.5rem;
+  
+  /* Custom Pokant colors */
+  --pokant-teal: #21808D;
+  --pokant-charcoal: #1F2121;
+  --pokant-cream: #FCFCF9;
+  --pokant-dark-card: #282a2a;
 }
 
-.dark {
-  --background: 222 47% 11%;
-  --foreground: 210 40% 98%;
-  --card: 222 47% 11%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222 47% 11%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 217 91% 60%;
-  --primary-foreground: 222 47% 11%;
-  --secondary: 217 33% 17%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217 33% 17%;
-  --muted-foreground: 215 20% 65%;
-  --accent: 217 33% 17%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62% 30%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217 33% 17%;
-  --input: 217 33% 17%;
-  --ring: 224 76% 48%;
+.light {
+  --background: 60 20% 98%;
+  --foreground: 12 7% 13%;
+  --card: 0 0% 100%;
+  --card-foreground: 12 7% 13%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 12 7% 13%;
+  --primary: 184 63% 34%;
+  --primary-foreground: 60 20% 98%;
+  --secondary: 60 5% 94%;
+  --secondary-foreground: 12 7% 13%;
+  --muted: 60 5% 94%;
+  --muted-foreground: 12 7% 40%;
+  --accent: 184 63% 34%;
+  --accent-foreground: 60 20% 98%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 60 20% 98%;
+  --border: 60 5% 88%;
+  --input: 60 5% 88%;
+  --ring: 184 63% 34%;
 }
 
 * {
   border-color: hsl(var(--border));
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* GPU-accelerated animation classes */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 400ms ease-out, transform 400ms ease-out;
+}
+
+.fade-in-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Noise meter animation */
+@keyframes noise-toggle {
+  0%, 45% {
+    content: "60dB Call Center";
+  }
+  50%, 95% {
+    content: "95dB Construction";
+  }
+}
+
+@keyframes noise-color {
+  0%, 45% {
+    background-color: rgba(107, 114, 128, 0.3);
+    color: #9ca3af;
+  }
+  50%, 95% {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+  }
+}
+
+.noise-meter {
+  animation: noise-color 3s ease-in-out infinite;
+}
+
+/* Button hover effect */
+.btn-hover {
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+}
+
+.btn-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -10px rgba(33, 128, 141, 0.5);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .fade-in-up {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Syntax highlighting for code blocks */
+.code-key {
+  color: #4ade80;
+}
+
+.code-string {
+  color: #60a5fa;
+}
+
+.code-number {
+  color: #fbbf24;
+}
+
+.code-comment {
+  color: #6b7280;
 }
