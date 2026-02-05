@@ -2,269 +2,281 @@
 
 import { useEffect, useRef, useState, useCallback } from "react"
 import Link from "next/link"
-import { Moon, Sun, Send, FileText, Activity, Shield, Zap, CheckCircle, ArrowRight } from "lucide-react"
+import { Moon, Sun, FileText, Activity, Shield, Zap, CheckCircle, ArrowRight, Send } from "lucide-react"
 
 export default function PokantLanding() {
-  const [isDark, setIsDark] = useState(true)
+  const [theme, setTheme] = useState<"dark" | "light">("dark")
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
-    setIsDark(prefersDark)
-    document.documentElement.classList.toggle("light", !prefersDark)
+    const savedTheme = prefersDark ? "dark" : "light"
+    setTheme(savedTheme)
+    document.body.setAttribute("data-theme", savedTheme)
   }, [])
 
-  const toggleTheme = () => {
-    setIsDark(!isDark)
-    document.documentElement.classList.toggle("light", isDark)
-  }
+  const toggleTheme = useCallback(() => {
+    const newTheme = theme === "dark" ? "light" : "dark"
+    setTheme(newTheme)
+    document.body.setAttribute("data-theme", newTheme)
+  }, [theme])
 
   if (!mounted) {
     return null
   }
 
   return (
-    <div className="min-h-screen bg-[var(--pokant-charcoal)] text-[var(--pokant-cream)]">
+    <div className="min-h-screen">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[var(--pokant-charcoal)]/90 backdrop-blur-sm border-b border-white/5">
+      <nav className="nav-fixed">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Activity className="w-6 h-6 text-[var(--pokant-teal)]" />
+          <Link href="/" className="flex items-center gap-2">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M2 14h4l2-6 3 12 3-8 2 4h4l2-4 2 4h2" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
             <span className="text-xl font-semibold tracking-tight">Pokant</span>
-          </div>
+          </Link>
+          
           <div className="hidden md:flex items-center gap-8">
-            <Link href="#how-it-works" className="text-sm text-[var(--pokant-cream)]/70 hover:text-[var(--pokant-cream)] transition-colors">
+            <Link href="#how-it-works" className="text-sm hover:opacity-100 opacity-70 transition-opacity">
               How It Works
             </Link>
-            <Link href="#pricing" className="text-sm text-[var(--pokant-cream)]/70 hover:text-[var(--pokant-cream)] transition-colors">
+            <Link href="#pricing" className="text-sm hover:opacity-100 opacity-70 transition-opacity">
               Pricing
             </Link>
-            <Link href="#docs" className="text-sm text-[var(--pokant-cream)]/70 hover:text-[var(--pokant-cream)] transition-colors">
+            <Link href="#docs" className="text-sm hover:opacity-100 opacity-70 transition-opacity">
               Docs
             </Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-white/5 transition-colors"
-              aria-label="Toggle theme"
-            >
-              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-            <Link
-              href="#login"
-              className="text-sm text-[var(--pokant-cream)]/70 hover:text-[var(--pokant-cream)] transition-colors"
-            >
+            <Link href="#login" className="text-sm hover:opacity-100 opacity-70 transition-opacity">
               Login
             </Link>
-            <Link
-              href="#get-api-key"
-              className="btn-hover px-4 py-2 bg-[var(--pokant-teal)] text-[var(--pokant-cream)] text-sm font-medium rounded-lg"
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              className="theme-toggle p-2 rounded-lg hover:bg-[var(--surface)] transition-colors"
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             >
+              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <Link href="#get-api-key" className="btn-primary hidden sm:inline-flex items-center gap-2">
               Get API Key
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
-                Test Voice AI in Real-World Conditions
-              </h1>
-              <p className="text-lg text-[var(--pokant-cream)]/60 mb-8 leading-relaxed">
-                Synthetic tests miss production failures in 80-105dB industrial environments. 
-                Pokant&apos;s hybrid testing reveals the truth before your users do.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link
-                  href="#get-api-key"
-                  className="btn-hover inline-flex items-center gap-2 px-6 py-3 bg-[var(--pokant-teal)] text-[var(--pokant-cream)] font-medium rounded-lg"
-                >
-                  Get API Key
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link
-                  href="#docs"
-                  className="btn-hover inline-flex items-center gap-2 px-6 py-3 border border-white/10 text-[var(--pokant-cream)] font-medium rounded-lg hover:bg-white/5"
-                >
-                  <FileText className="w-4 h-4" />
-                  View Docs
-                </Link>
+      <main>
+        {/* Hero Section */}
+        <section className="pt-32 pb-20 px-6 min-h-[90vh] flex items-center">
+          <div className="max-w-6xl mx-auto w-full">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <h1 className="text-4xl md:text-[3.5rem] font-bold tracking-tight leading-[1.1] mb-6 text-balance">
+                  Test Voice AI in Real-World Conditions
+                </h1>
+                <p className="text-lg leading-relaxed mb-8 opacity-60 max-w-lg">
+                  Synthetic tests miss production failures in 80-105dB industrial environments. 
+                  Pokant&apos;s hybrid testing reveals the truth before your users do.
+                </p>
+                <div className="flex flex-wrap gap-4 mb-8">
+                  <Link href="#get-api-key" className="btn-primary inline-flex items-center gap-2">
+                    Get API Key
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <Link href="#docs" className="btn-secondary inline-flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    View Docs
+                  </Link>
+                </div>
+                <div className="flex items-center gap-2 text-sm opacity-60">
+                  <span className="w-2 h-2 bg-[var(--success)] rounded-full pulse-dot" />
+                  <span>Live Robustness Test Running</span>
+                </div>
               </div>
+              <DashboardMockup />
             </div>
-            <DashboardMockup />
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Problem/Solution Section */}
-      <section className="py-20 px-6 border-t border-white/5">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-16">The Problem with Synthetic Testing</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <ComparisonCard
-              title="Synthetic Testing"
-              subtitle="What you think you have"
-              waveformType="clean"
-              score={95}
-              scoreLabel="False Confidence"
-              status="warning"
-            />
-            <ComparisonCard
-              title="Pokant Hybrid Testing"
-              subtitle="What you actually have"
-              waveformType="noisy"
-              score={78}
-              scoreLabel="Real Accuracy"
-              status="success"
-            />
+        {/* Problem/Solution Section */}
+        <section className="py-20 px-6 border-t border-[var(--border-subtle)]">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-balance">
+              The Problem with Synthetic Testing
+            </h2>
+            <p className="text-center opacity-60 mb-16 max-w-2xl mx-auto">
+              Lab conditions don&apos;t reflect reality. See the difference.
+            </p>
+            <div className="grid md:grid-cols-2 gap-8">
+              <ComparisonCard
+                title="Synthetic Testing"
+                subtitle="What you think you have"
+                waveformType="clean"
+                score={95}
+                scoreLabel="False Confidence"
+                variant="warning"
+              />
+              <ComparisonCard
+                title="Pokant Hybrid Testing"
+                subtitle="What you actually have"
+                waveformType="noisy"
+                score={78}
+                scoreLabel="Real Accuracy"
+                variant="success"
+              />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* How It Works */}
-      <section id="how-it-works" className="py-20 px-6 border-t border-white/5">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-4">How It Works</h2>
-          <p className="text-center text-[var(--pokant-cream)]/60 mb-16 max-w-2xl mx-auto">
-            Four simple steps to production-grade voice AI confidence
-          </p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <FeatureCard
-              icon={<Send className="w-6 h-6" />}
-              title="Send Audio + Scenario"
-              description="Upload your audio samples with environment metadata"
-              delay={0}
-            />
-            <FeatureCard
-              icon={<Activity className="w-6 h-6" />}
-              title="We Simulate Real Conditions"
-              description="Industrial noise, accents, and edge cases applied"
-              delay={100}
-            />
-            <FeatureCard
-              icon={<Shield className="w-6 h-6" />}
-              title="Get Robustness Score"
-              description="Detailed breakdown of failure modes and causes"
-              delay={200}
-            />
-            <FeatureCard
-              icon={<Zap className="w-6 h-6" />}
-              title="Ship with Confidence"
-              description="Deploy knowing exactly where your limits are"
-              delay={300}
-            />
+        {/* How It Works */}
+        <section id="how-it-works" className="py-20 px-6 border-t border-[var(--border-subtle)]">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">How It Works</h2>
+            <p className="text-center opacity-60 mb-16 max-w-2xl mx-auto">
+              Four simple steps to production-grade voice AI confidence
+            </p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <StepCard
+                step={1}
+                icon={<Send className="w-5 h-5" />}
+                title="Send Audio + Scenario"
+                description="Upload your audio samples with environment metadata"
+                delay={0}
+              />
+              <StepCard
+                step={2}
+                icon={<Activity className="w-5 h-5" />}
+                title="We Simulate Real Conditions"
+                description="Industrial noise, accents, and edge cases applied"
+                delay={100}
+              />
+              <StepCard
+                step={3}
+                icon={<Shield className="w-5 h-5" />}
+                title="Get Robustness Score"
+                description="Detailed breakdown of failure modes and causes"
+                delay={200}
+              />
+              <StepCard
+                step={4}
+                icon={<Zap className="w-5 h-5" />}
+                title="Ship with Confidence"
+                description="Deploy knowing exactly where your limits are"
+                delay={300}
+              />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Code Example */}
-      <section className="py-20 px-6 border-t border-white/5">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-4">Simple API Integration</h2>
-          <p className="text-center text-[var(--pokant-cream)]/60 mb-12 max-w-2xl mx-auto">
-            One endpoint. Complete robustness analysis.
-          </p>
-          <CodeBlock />
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20 px-6 border-t border-white/5">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-6">
-            <TestimonialCard
-              quote="Pokant caught 23 critical failures our internal QA missed. Worth every penny."
-              author="Sarah Chen"
-              role="ML Lead, VoiceTech Inc"
-            />
-            <TestimonialCard
-              quote="Finally, a testing platform that understands industrial environments. Game changer."
-              author="Marcus Rodriguez"
-              role="CTO, ConstructAI"
-            />
-            <TestimonialCard
-              quote="Reduced our production incidents by 67% in the first quarter of use."
-              author="Emma Williams"
-              role="Head of QA, LogiVoice"
-            />
+        {/* Code Example */}
+        <section className="py-20 px-6 border-t border-[var(--border-subtle)]">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Simple API Integration</h2>
+            <p className="text-center opacity-60 mb-12 max-w-2xl mx-auto">
+              One endpoint. Complete robustness analysis.
+            </p>
+            <CodeBlock />
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="py-20 px-6 border-t border-white/5">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-4">Simple, Transparent Pricing</h2>
-          <p className="text-center text-[var(--pokant-cream)]/60 mb-16 max-w-2xl mx-auto">
-            Start testing in minutes. Scale as you grow.
-          </p>
-          <div className="grid md:grid-cols-3 gap-6">
-            <PricingCard
-              tier="Developer"
-              price="$999"
-              period="/mo"
-              features={[
-                "10,000 evaluations/mo",
-                "5 noise environments",
-                "Email support",
-                "API access",
-                "Basic analytics",
-              ]}
-            />
-            <PricingCard
-              tier="Team"
-              price="$1,999"
-              period="/mo"
-              featured
-              features={[
-                "50,000 evaluations/mo",
-                "15 noise environments",
-                "Priority support",
-                "Team collaboration",
-                "Advanced analytics",
-                "Custom scenarios",
-              ]}
-            />
-            <PricingCard
-              tier="Enterprise"
-              price="Custom"
-              period=""
-              features={[
-                "Unlimited evaluations",
-                "All environments",
-                "Dedicated support",
-                "SLA guarantee",
-                "On-premise option",
-                "Custom integrations",
-              ]}
-              ctaText="Contact Sales"
-            />
+        {/* Testimonials */}
+        <section className="py-20 px-6 border-t border-[var(--border-subtle)]">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">Trusted by Voice AI Teams</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <TestimonialCard
+                quote="Pokant caught 23 critical failures our internal QA missed. Worth every penny."
+                author="Sarah Chen"
+                role="ML Lead, VoiceTech Inc"
+              />
+              <TestimonialCard
+                quote="Finally, a testing platform that understands industrial environments. Game changer."
+                author="Marcus Rodriguez"
+                role="CTO, ConstructAI"
+              />
+              <TestimonialCard
+                quote="Reduced our production incidents by 67% in the first quarter of use."
+                author="Emma Williams"
+                role="Head of QA, LogiVoice"
+              />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* Pricing */}
+        <section id="pricing" className="py-20 px-6 border-t border-[var(--border-subtle)]">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Simple, Transparent Pricing</h2>
+            <p className="text-center opacity-60 mb-16 max-w-2xl mx-auto">
+              Start testing in minutes. Scale as you grow.
+            </p>
+            <div className="grid md:grid-cols-3 gap-6">
+              <PricingCard
+                tier="Developer"
+                price="$999"
+                period="/mo"
+                features={[
+                  "10,000 evaluations/mo",
+                  "5 noise environments",
+                  "Email support",
+                  "API access",
+                  "Basic analytics",
+                ]}
+              />
+              <PricingCard
+                tier="Team"
+                price="$1,999"
+                period="/mo"
+                featured
+                features={[
+                  "50,000 evaluations/mo",
+                  "15 noise environments",
+                  "Priority support",
+                  "Team collaboration",
+                  "Advanced analytics",
+                  "Custom scenarios",
+                ]}
+              />
+              <PricingCard
+                tier="Enterprise"
+                price="Custom"
+                period=""
+                features={[
+                  "Unlimited evaluations",
+                  "All environments",
+                  "Dedicated support",
+                  "SLA guarantee",
+                  "On-premise option",
+                  "Custom integrations",
+                ]}
+                ctaText="Contact Sales"
+              />
+            </div>
+          </div>
+        </section>
+      </main>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-white/5">
+      <footer className="py-12 px-6 border-t border-[var(--border-subtle)]">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-[var(--pokant-teal)]" />
+            <Link href="/" className="flex items-center gap-2">
+              <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M2 14h4l2-6 3 12 3-8 2 4h4l2-4 2 4h2" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
               <span className="font-semibold">Pokant</span>
-            </div>
-            <div className="flex flex-wrap justify-center gap-6 text-sm text-[var(--pokant-cream)]/60">
-              <Link href="#docs" className="hover:text-[var(--pokant-cream)] transition-colors">Docs</Link>
-              <Link href="#api" className="hover:text-[var(--pokant-cream)] transition-colors">API Reference</Link>
-              <Link href="#status" className="hover:text-[var(--pokant-cream)] transition-colors">Status</Link>
-              <Link href="#github" className="hover:text-[var(--pokant-cream)] transition-colors">GitHub</Link>
-              <Link href="#login" className="hover:text-[var(--pokant-cream)] transition-colors">Login</Link>
-            </div>
-            <div className="text-xs text-[var(--pokant-cream)]/40">
+            </Link>
+            <nav className="flex flex-wrap justify-center gap-6 text-sm">
+              <Link href="#docs" className="opacity-60 hover:opacity-100 transition-opacity">Docs</Link>
+              <Link href="#api" className="opacity-60 hover:opacity-100 transition-opacity">API Reference</Link>
+              <Link href="#status" className="opacity-60 hover:opacity-100 transition-opacity">Status</Link>
+              <Link href="#github" className="opacity-60 hover:opacity-100 transition-opacity">GitHub</Link>
+              <Link href="#login" className="opacity-60 hover:opacity-100 transition-opacity">Login</Link>
+            </nav>
+            <div className="text-xs opacity-40">
               Built with Next.js + Tailwind
             </div>
           </div>
@@ -274,13 +286,13 @@ export default function PokantLanding() {
   )
 }
 
+/* Dashboard Mockup Component */
 function DashboardMockup() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [score, setScore] = useState(78)
   const [noiseLevel, setNoiseLevel] = useState<"low" | "high">("low")
   const [isVisible, setIsVisible] = useState(false)
-  const [isLoaded, setIsLoaded] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number>(0)
 
   // Waveform animation
@@ -296,15 +308,15 @@ function DashboardMockup() {
     let offset = 0
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.strokeStyle = "#21808D"
+      ctx.strokeStyle = "#32B8C6"
       ctx.lineWidth = 2
       ctx.beginPath()
 
       for (let x = 0; x < canvas.width; x++) {
-        const noise = noiseLevel === "high" 
-          ? Math.sin((x + offset) * 0.05) * 20 + Math.random() * 30 - 15
-          : Math.sin((x + offset) * 0.03) * 15 + Math.random() * 5 - 2.5
-        const y = canvas.height / 2 + noise
+        const baseNoise = noiseLevel === "high" 
+          ? Math.sin((x + offset) * 0.05) * 20 + (Math.random() * 30 - 15)
+          : Math.sin((x + offset) * 0.03) * 15 + (Math.random() * 5 - 2.5)
+        const y = canvas.height / 2 + baseNoise
         if (x === 0) {
           ctx.moveTo(x, y)
         } else {
@@ -320,7 +332,6 @@ function DashboardMockup() {
     }
 
     draw()
-    setIsLoaded(true)
 
     return () => {
       if (animationRef.current) {
@@ -329,7 +340,7 @@ function DashboardMockup() {
     }
   }, [noiseLevel])
 
-  // Intersection Observer for score animation
+  // Intersection Observer for visibility
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -357,7 +368,7 @@ function DashboardMockup() {
       return
     }
 
-    let start = 78
+    const start = 78
     const end = 95
     const duration = 1000
     const startTime = performance.now()
@@ -376,7 +387,7 @@ function DashboardMockup() {
     requestAnimationFrame(animate)
   }, [isVisible])
 
-  // Noise level toggle
+  // Noise level toggle every 3 seconds
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     if (prefersReducedMotion) return
@@ -389,125 +400,118 @@ function DashboardMockup() {
   }, [])
 
   return (
-    <div
-      ref={containerRef}
-      className={`relative bg-[var(--pokant-dark-card)] rounded-xl border border-white/10 p-6 transition-opacity duration-500 ${
-        isLoaded ? "opacity-100" : "opacity-0"
-      }`}
-    >
-      {/* Skeleton loader */}
-      {!isLoaded && (
-        <div className="absolute inset-0 bg-[var(--pokant-dark-card)] rounded-xl animate-pulse" />
-      )}
-
+    <div ref={containerRef} className="card p-6">
       <div className="flex items-center justify-between mb-4">
-        <span className="text-sm text-[var(--pokant-cream)]/60">Live Robustness Test</span>
+        <span className="text-sm opacity-60">Live Robustness Test</span>
         <span className="flex items-center gap-2">
-          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-          <span className="text-xs text-green-500">Running</span>
+          <span className="w-2 h-2 bg-[var(--success)] rounded-full pulse-dot" />
+          <span className="text-xs text-[var(--success)]">Running</span>
         </span>
       </div>
 
       {/* Waveform */}
-      <div className="bg-[var(--pokant-charcoal)] rounded-lg p-4 mb-4">
+      <div className="card-inner p-4 mb-4">
         <canvas
           ref={canvasRef}
           width={400}
           height={80}
           className="w-full h-20"
-          aria-label="Audio waveform visualization"
+          aria-label="Audio waveform visualization showing real-time analysis"
         />
       </div>
 
       {/* Metrics */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-[var(--pokant-charcoal)] rounded-lg p-4">
-          <span className="text-xs text-[var(--pokant-cream)]/60 block mb-1">Noise Environment</span>
+        <div className="metric-card">
+          <span className="metric-label block mb-1">Noise Environment</span>
           <span
-            className={`noise-meter text-sm font-mono px-2 py-1 rounded ${
+            className={`text-sm font-mono px-2 py-1 rounded inline-block transition-colors duration-300 ${
               noiseLevel === "high"
-                ? "bg-red-500/20 text-red-400"
-                : "bg-gray-500/20 text-gray-400"
+                ? "bg-[var(--error)]/20 text-[var(--error)]"
+                : "bg-[var(--text-muted)]/20 text-[var(--text-secondary)]"
             }`}
           >
             {noiseLevel === "high" ? "95dB Construction" : "60dB Call Center"}
           </span>
         </div>
-        <div className="bg-[var(--pokant-charcoal)] rounded-lg p-4">
-          <span className="text-xs text-[var(--pokant-cream)]/60 block mb-1">Robustness Score</span>
-          <span className="text-2xl font-bold text-[var(--pokant-teal)]">{score}%</span>
+        <div className="metric-card">
+          <span className="metric-label block mb-1">Robustness Score</span>
+          <span className="metric-value text-[var(--primary)]">{score}%</span>
         </div>
       </div>
     </div>
   )
 }
 
+/* Comparison Card with SVG Waveform */
 function ComparisonCard({
   title,
   subtitle,
   waveformType,
   score,
   scoreLabel,
-  status,
+  variant,
 }: {
   title: string
   subtitle: string
   waveformType: "clean" | "noisy"
   score: number
   scoreLabel: string
-  status: "warning" | "success"
+  variant: "warning" | "success"
 }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  // Generate SVG path points
+  const generatePath = () => {
+    const points: string[] = []
+    const width = 300
+    const height = 60
+    const midY = height / 2
 
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.strokeStyle = status === "warning" ? "#f59e0b" : "#21808D"
-    ctx.lineWidth = 2
-    ctx.beginPath()
-
-    for (let x = 0; x < canvas.width; x++) {
-      const noise =
-        waveformType === "noisy"
-          ? Math.sin(x * 0.05) * 15 + (Math.random() * 20 - 10)
-          : Math.sin(x * 0.03) * 20
-      const y = canvas.height / 2 + noise
-      if (x === 0) {
-        ctx.moveTo(x, y)
+    for (let x = 0; x <= width; x += 3) {
+      let y: number
+      if (waveformType === "noisy") {
+        // Jagged, irregular waveform
+        y = midY + Math.sin(x * 0.05) * 15 + (Math.random() * 20 - 10)
       } else {
-        ctx.lineTo(x, y)
+        // Smooth, clean waveform
+        y = midY + Math.sin(x * 0.03) * 18
       }
+      points.push(`${x === 0 ? "M" : "L"} ${x} ${Math.max(10, Math.min(50, y))}`)
     }
-    ctx.stroke()
-  }, [waveformType, status])
+    return points.join(" ")
+  }
+
+  const strokeColor = variant === "warning" ? "#E68161" : "#32B8C6"
 
   return (
-    <div className="bg-[var(--pokant-dark-card)] rounded-xl border border-white/10 p-6">
+    <div className="card p-6">
       <h3 className="text-xl font-semibold mb-1">{title}</h3>
-      <p className="text-sm text-[var(--pokant-cream)]/60 mb-4">{subtitle}</p>
+      <p className="text-sm opacity-60 mb-4">{subtitle}</p>
 
-      <div className="bg-[var(--pokant-charcoal)] rounded-lg p-4 mb-4">
-        <canvas
-          ref={canvasRef}
-          width={300}
-          height={60}
-          className="w-full h-15"
-          aria-label={`${waveformType} waveform`}
-        />
+      <div className="card-inner p-4 mb-4">
+        <svg
+          width="300"
+          height="60"
+          viewBox="0 0 300 60"
+          className="w-full h-[60px]"
+          aria-label={`${waveformType} audio waveform`}
+        >
+          <path
+            d={generatePath()}
+            fill="none"
+            stroke={strokeColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="waveform-path"
+          />
+        </svg>
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="text-sm text-[var(--pokant-cream)]/60">{scoreLabel}</span>
-        <span
-          className={`text-2xl font-bold ${
-            status === "warning" ? "text-amber-500" : "text-[var(--pokant-teal)]"
-          }`}
-        >
+        <span className={`text-sm px-3 py-1 rounded-full ${variant === "warning" ? "badge-warning" : "badge-success"}`}>
+          {scoreLabel}
+        </span>
+        <span className={`text-2xl font-bold ${variant === "warning" ? "text-[#E68161]" : "text-[var(--accent)]"}`}>
           {score}%
         </span>
       </div>
@@ -515,12 +519,15 @@ function ComparisonCard({
   )
 }
 
-function FeatureCard({
+/* Step Card with numbered circle */
+function StepCard({
+  step,
   icon,
   title,
   description,
   delay,
 }: {
+  step: number
   icon: React.ReactNode
   title: string
   description: string
@@ -530,10 +537,16 @@ function FeatureCard({
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setTimeout(() => setIsVisible(true), delay)
+          if (prefersReducedMotion) {
+            setIsVisible(true)
+          } else {
+            setTimeout(() => setIsVisible(true), delay)
+          }
         }
       },
       { threshold: 0.1 }
@@ -549,57 +562,49 @@ function FeatureCard({
   return (
     <div
       ref={cardRef}
-      className={`fade-in-up ${isVisible ? "visible" : ""} bg-[var(--pokant-dark-card)] rounded-xl border border-white/10 p-6`}
-      style={{ transitionDelay: `${delay}ms` }}
+      className={`fade-in-up ${isVisible ? "visible" : ""} card p-6`}
     >
-      <div className="w-12 h-12 bg-[var(--pokant-teal)]/10 rounded-lg flex items-center justify-center text-[var(--pokant-teal)] mb-4">
-        {icon}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-8 h-8 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-sm font-semibold">
+          {step}
+        </div>
+        <div className="w-10 h-10 bg-[var(--primary)]/10 rounded-lg flex items-center justify-center text-[var(--primary)]">
+          {icon}
+        </div>
       </div>
       <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-sm text-[var(--pokant-cream)]/60 leading-relaxed">{description}</p>
+      <p className="text-sm opacity-60 leading-relaxed">{description}</p>
     </div>
   )
 }
 
+/* Code Block with syntax highlighting */
 function CodeBlock() {
   return (
-    <div className="bg-[var(--pokant-dark-card)] rounded-xl border border-white/10 overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5">
-        <span className="w-3 h-3 rounded-full bg-red-500/60" />
-        <span className="w-3 h-3 rounded-full bg-yellow-500/60" />
-        <span className="w-3 h-3 rounded-full bg-green-500/60" />
-        <span className="ml-4 text-xs text-[var(--pokant-cream)]/40 font-mono">POST /eval/robustness</span>
+    <div className="card overflow-hidden max-w-3xl mx-auto">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--border)]">
+        <span className="w-3 h-3 rounded-full bg-[var(--error)]/60" />
+        <span className="w-3 h-3 rounded-full bg-[var(--warning)]/60" />
+        <span className="w-3 h-3 rounded-full bg-[var(--success)]/60" />
+        <span className="ml-4 text-xs opacity-40 font-mono">POST /eval/robustness</span>
       </div>
-      <div className="p-6 overflow-x-auto">
-        <pre className="text-sm font-mono leading-relaxed">
+      <div className="code-block p-6 overflow-x-auto">
+        <pre className="leading-relaxed">
           <code>
-            <span className="code-comment">{"// Request"}</span>
-            {"\n"}
-            <span className="text-[var(--pokant-cream)]">{"{"}</span>
-            {"\n"}
-            {"  "}<span className="code-key">{'"audio_url"'}</span><span className="text-[var(--pokant-cream)]">:</span> <span className="code-string">{'"https://storage.example.com/sample.wav"'}</span><span className="text-[var(--pokant-cream)]">,</span>
-            {"\n"}
-            {"  "}<span className="code-key">{'"scenario"'}</span><span className="text-[var(--pokant-cream)]">:</span> <span className="code-string">{'"construction_site"'}</span><span className="text-[var(--pokant-cream)]">,</span>
-            {"\n"}
-            {"  "}<span className="code-key">{'"noise_level_db"'}</span><span className="text-[var(--pokant-cream)]">:</span> <span className="code-number">95</span>
-            {"\n"}
-            <span className="text-[var(--pokant-cream)]">{"}"}</span>
-            {"\n\n"}
-            <span className="code-comment">{"// Response"}</span>
-            {"\n"}
-            <span className="text-[var(--pokant-cream)]">{"{"}</span>
-            {"\n"}
-            {"  "}<span className="code-key">{'"robustness_score"'}</span><span className="text-[var(--pokant-cream)]">:</span> <span className="code-number">78.4</span><span className="text-[var(--pokant-cream)]">,</span>
-            {"\n"}
-            {"  "}<span className="code-key">{'"failures"'}</span><span className="text-[var(--pokant-cream)]">:</span> <span className="text-[var(--pokant-cream)]">[</span>
-            {"\n"}
-            {"    "}<span className="text-[var(--pokant-cream)]">{"{"}</span> <span className="code-key">{'"type"'}</span><span className="text-[var(--pokant-cream)]">:</span> <span className="code-string">{'"misrecognition"'}</span><span className="text-[var(--pokant-cream)]">,</span> <span className="code-key">{'"severity"'}</span><span className="text-[var(--pokant-cream)]">:</span> <span className="code-string">{'"critical"'}</span> <span className="text-[var(--pokant-cream)]">{"}"}</span>
-            {"\n"}
-            {"  "}<span className="text-[var(--pokant-cream)]">]</span><span className="text-[var(--pokant-cream)]">,</span>
-            {"\n"}
-            {"  "}<span className="code-key">{'"recommendations"'}</span><span className="text-[var(--pokant-cream)]">:</span> <span className="text-[var(--pokant-cream)]">[</span><span className="code-string">{'"Add noise cancellation preprocessing"'}</span><span className="text-[var(--pokant-cream)]">]</span>
-            {"\n"}
-            <span className="text-[var(--pokant-cream)]">{"}"}</span>
+            <span className="code-comment">{"// Request"}</span>{"\n"}
+            {"{"}{"\n"}
+            {"  "}<span className="code-key">&quot;audio_url&quot;</span>: <span className="code-string">&quot;https://storage.example.com/sample.wav&quot;</span>,{"\n"}
+            {"  "}<span className="code-key">&quot;scenario&quot;</span>: <span className="code-string">&quot;construction_site&quot;</span>,{"\n"}
+            {"  "}<span className="code-key">&quot;noise_level_db&quot;</span>: <span className="code-number">95</span>{"\n"}
+            {"}"}{"\n\n"}
+            <span className="code-comment">{"// Response"}</span>{"\n"}
+            {"{"}{"\n"}
+            {"  "}<span className="code-key">&quot;robustness_score&quot;</span>: <span className="code-number">78.4</span>,{"\n"}
+            {"  "}<span className="code-key">&quot;failures&quot;</span>: [{"\n"}
+            {"    "}{"{"} <span className="code-key">&quot;type&quot;</span>: <span className="code-string">&quot;misrecognition&quot;</span>, <span className="code-key">&quot;severity&quot;</span>: <span className="code-string">&quot;critical&quot;</span> {"}"}{"\n"}
+            {"  "}],{"\n"}
+            {"  "}<span className="code-key">&quot;recommendations&quot;</span>: [<span className="code-string">&quot;Add noise cancellation preprocessing&quot;</span>]{"\n"}
+            {"}"}
           </code>
         </pre>
       </div>
@@ -607,6 +612,7 @@ function CodeBlock() {
   )
 }
 
+/* Testimonial Card */
 function TestimonialCard({
   quote,
   author,
@@ -617,17 +623,20 @@ function TestimonialCard({
   role: string
 }) {
   return (
-    <div className="bg-[var(--pokant-dark-card)] rounded-xl border border-white/10 p-6">
-      <div className="w-10 h-10 bg-white/5 rounded-lg mb-4" />
-      <p className="text-[var(--pokant-cream)]/80 mb-4 leading-relaxed">&ldquo;{quote}&rdquo;</p>
+    <div className="card p-6">
+      <svg className="w-8 h-8 opacity-20 mb-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+      </svg>
+      <p className="mb-4 leading-relaxed opacity-80">&ldquo;{quote}&rdquo;</p>
       <div>
         <p className="font-medium">{author}</p>
-        <p className="text-sm text-[var(--pokant-cream)]/60">{role}</p>
+        <p className="text-sm opacity-60">{role}</p>
       </div>
     </div>
   )
 }
 
+/* Pricing Card */
 function PricingCard({
   tier,
   price,
@@ -645,35 +654,33 @@ function PricingCard({
 }) {
   return (
     <div
-      className={`rounded-xl border p-6 ${
-        featured
-          ? "bg-[var(--pokant-teal)]/10 border-[var(--pokant-teal)]/30"
-          : "bg-[var(--pokant-dark-card)] border-white/10"
+      className={`card p-6 ${
+        featured ? "ring-2 ring-[var(--primary)] relative" : ""
       }`}
     >
       {featured && (
-        <span className="inline-block text-xs font-medium text-[var(--pokant-teal)] bg-[var(--pokant-teal)]/20 px-2 py-1 rounded mb-4">
+        <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-medium bg-[var(--primary)] text-white px-3 py-1 rounded-full">
           Most Popular
         </span>
       )}
       <h3 className="text-xl font-semibold mb-2">{tier}</h3>
       <div className="mb-6">
         <span className="text-4xl font-bold">{price}</span>
-        <span className="text-[var(--pokant-cream)]/60">{period}</span>
+        <span className="opacity-60">{period}</span>
       </div>
       <ul className="space-y-3 mb-6">
         {features.map((feature, i) => (
           <li key={i} className="flex items-start gap-2 text-sm">
-            <CheckCircle className="w-4 h-4 text-[var(--pokant-teal)] mt-0.5 flex-shrink-0" />
-            <span className="text-[var(--pokant-cream)]/80">{feature}</span>
+            <CheckCircle className="w-4 h-4 text-[var(--primary)] mt-0.5 flex-shrink-0" />
+            <span className="opacity-80">{feature}</span>
           </li>
         ))}
       </ul>
       <button
-        className={`btn-hover w-full py-3 rounded-lg font-medium ${
+        className={`w-full py-3 rounded-lg font-medium transition-all duration-150 ${
           featured
-            ? "bg-[var(--pokant-teal)] text-[var(--pokant-cream)]"
-            : "border border-white/10 text-[var(--pokant-cream)] hover:bg-white/5"
+            ? "btn-primary"
+            : "btn-secondary"
         }`}
       >
         {ctaText}
