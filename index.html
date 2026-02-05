@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokant – Open the app</title>
+  <style>
+    body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #0f172a; color: #e2e8f0; text-align: center; padding: 2rem; }
+    a { color: #38bdf8; }
+    code { background: #1e293b; padding: 0.2em 0.4em; border-radius: 4px; }
+    .ports { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+    .ports a { display: inline-block; padding: 0.5rem 1rem; background: #1e293b; border-radius: 6px; text-decoration: none; color: #38bdf8; }
+    .ports a:hover { background: #334155; }
+  </style>
+</head>
+<body>
+  <div>
+    <p id="msg">Checking for the app…</p>
+    <p class="help" style="display:none; margin-top: 1rem;">
+      Run from the project root: <code>pnpm dev</code><br>
+      Open the URL the terminal shows (e.g. <strong id="port"></strong>), then <strong>bookmark that page</strong>. Always use that bookmark to open the app—refreshing it will keep showing the app, not this HTML.
+    </p>
+    <div class="ports" id="ports" style="display:none;"></div>
+  </div>
+  <script>
+    (function() {
+      var ports = [3000, 3001, 3002, 3003, 3004, 3005];
+      var idx = 0;
+      function tryPort() {
+        if (idx >= ports.length) {
+          document.getElementById('msg').textContent = 'App not running. Start it first.';
+          document.querySelectorAll('.help').forEach(function(el) { el.style.display = 'block'; });
+          document.getElementById('port').textContent = 'http://localhost:3000';
+          var div = document.getElementById('ports');
+          div.style.display = 'flex';
+          ports.forEach(function(p) {
+            var a = document.createElement('a');
+            a.href = 'http://localhost:' + p;
+            a.textContent = 'localhost:' + p;
+            a.target = '_blank';
+            div.appendChild(a);
+          });
+          return;
+        }
+        var port = ports[idx++];
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'http://localhost:' + port + '/', true);
+        xhr.timeout = 800;
+        xhr.onload = function() {
+          if (xhr.status >= 200 && xhr.status < 400) {
+            window.location.replace('http://localhost:' + port + '/');
+            return;
+          }
+          tryPort();
+        };
+        xhr.onerror = xhr.ontimeout = function() { tryPort(); };
+        xhr.send();
+      }
+      tryPort();
+    })();
+  </script>
+</body>
+</html>

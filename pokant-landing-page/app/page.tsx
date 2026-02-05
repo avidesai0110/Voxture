@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { ArrowRight, ArrowDown, Menu, X, Check, Mic, Waves, Shield, Zap, BarChart3, Code2, Clock, Globe, Cpu, Volume2 } from "lucide-react"
+import { ArrowRight, ArrowDown, Menu, X, Check, Mic, Waves, Shield, Zap, BarChart3, Code2, Clock, Globe, Cpu, Volume2, Link2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 function useInView(threshold = 0.1) {
@@ -184,6 +184,61 @@ const howItWorks = [
   },
 ]
 
+const productionChallenges = [
+  {
+    icon: Clock,
+    title: "Latency fragility disrupts flow",
+    description:
+      "Pauses, overlaps, and mishandled interruptions make interactions feel unnatural. Delays beyond ~800ms often feel disjointed. Causes: network jitter, non-streaming components, slow tool calls, aggressive VAD. Barge-in mishandling (agent talks over user) is a major frustration.",
+  },
+  {
+    icon: Link2,
+    title: "Integration errors compound at boundaries",
+    description:
+      "Mismatched components and vendor seams cause cascading failures. Partial transcripts trigger premature actions; stale intents hit real APIs.",
+  },
+  {
+    icon: Mic,
+    title: "Conversation logic breaks under variability",
+    description:
+      "Context loss, unscripted deviations, and emotional cues cause loops or misinterpretations. Agents fail on \"maybe,\" self-corrections, multi-speaker chaos, and frustration.",
+  },
+  {
+    icon: Shield,
+    title: "Reliability suffers from probabilistic risks",
+    description:
+      "Non-deterministic behaviors and hallucinations erode trust. High-stakes or irreversible actions make \"mostly right\" unacceptable.",
+  },
+  {
+    icon: Shield,
+    title: "Security & compliance gaps pose threats",
+    description:
+      "Prompt injection via voice, tool abuse, and data mishandling. PII/PHI risks; regulated environments need strong controls.",
+  },
+  {
+    icon: BarChart3,
+    title: "Infrastructure & observability deficiencies hide issues",
+    description:
+      "Poor scaling and monitoring let quiet degradations persist: dead air, rising WER, tool latency. Audio-specific failure modes are often untracked, leading to long MTTD.",
+  },
+  {
+    icon: Cpu,
+    title: "Architectural choices amplify problems",
+    description:
+      "Cascading pipelines mean more control and auditability but higher latency. End-to-end speech-to-speech is faster but less interceptable and inspectable. Many systems fail when demo assumptions meet production load and variance.",
+  },
+]
+
+const productionMitigations = [
+  "Streaming ASR/TTS and parallelization; edge or regional deployment; track P95/P99 latency.",
+  "Turn-taking: VAD tuning plus true barge-in; safe rewind and checkpointing for interruptions.",
+  "Layered architecture: real-time audio handling, text reasoning, and deterministic execution with policy guardrails.",
+  "Grounding: RAG where appropriate; confidence checks; human escalation for high-risk steps.",
+  "Security: prompt-injection defenses, least-privilege tool access, encryption, redaction, in-region processing.",
+  "Observability: audio metrics (WER trends, interruption rate, dead-air, barge-in failures, tool-call latency), traces, and eval harnesses.",
+  "Choose architecture deliberately and test at production load to validate latency vs. inspectability tradeoffs.",
+]
+
 const testimonials = [
   {
     quote: "Pokant found accuracy drops we never knew existed. Our users in noisy environments are finally having great experiences.",
@@ -260,6 +315,7 @@ export default function LandingPage() {
   const [heroLoaded, setHeroLoaded] = useState(false)
   const capabilitiesRef = useInView()
   const howItWorksRef = useInView()
+  const productionRef = useInView()
   const codeRef = useInView()
   const testimonialsRef = useInView()
   const pricingRef = useInView()
@@ -334,19 +390,17 @@ export default function LandingPage() {
 
       {/* Hero Section - Full Screen */}
       <section className="relative min-h-screen flex flex-col">
-        {/* Video Background */}
+        {/* Background (CSS-only, no external assets) */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover scale-105"
-          >
-            <source src="/space-animation.mp4" type="video/mp4" />
-          </video>
           <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
           <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80" />
+          <div
+            className="absolute inset-0 opacity-70"
+            style={{
+              backgroundImage:
+                "radial-gradient(1200px 600px at 20% 20%, hsl(var(--primary) / 0.25), transparent 60%), radial-gradient(900px 500px at 80% 30%, rgba(45, 212, 191, 0.18), transparent 55%), radial-gradient(800px 500px at 50% 90%, rgba(59, 130, 246, 0.12), transparent 60%)",
+            }}
+          />
         </div>
 
         {/* Hero Content */}
@@ -527,6 +581,78 @@ export default function LandingPage() {
                 <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Production Reality Section */}
+      <section className="py-24 px-6 lg:px-8" ref={productionRef.ref}>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2
+              className={`text-3xl lg:text-4xl font-bold text-foreground mb-4 transition-all duration-700 ${
+                productionRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
+            >
+              Voice Agents Fail in Production
+            </h2>
+            <p
+              className={`text-lg text-muted-foreground max-w-3xl mx-auto transition-all duration-700 delay-100 ${
+                productionRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
+            >
+              Voice agents look great in demos, but production deployment reveals interconnected systems
+              failures. Fixing them is holistic engineering; outcomes vary by domain and implementation.
+            </p>
+            <p
+              className={`text-lg text-muted-foreground max-w-3xl mx-auto mt-4 transition-all duration-700 delay-100 ${
+                productionRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
+            >
+              Failures show up across latency, integrations, conversation logic, reliability, security,
+              observability, and architecture—each category below has concrete mitigations.
+            </p>
+          </div>
+
+          <div
+            className={`text-sm text-muted-foreground max-w-4xl mx-auto mb-10 transition-all duration-700 delay-150 ${
+              productionRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
+          >
+            Real examples: a 2s delay to a simple billing change question makes users repeat themselves or
+            hang up; an agent hears a partial transcript and submits the wrong action before the user
+            finishes; a background speaker triggers an unintended intent and the wrong workflow step; a
+            model invents a policy detail in a customer call and trust collapses.
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {productionChallenges.map((item, i) => (
+              <div
+                key={item.title}
+                className={`group bg-card/40 backdrop-blur-sm border border-border/40 rounded-2xl p-6 transition-all duration-700 hover:border-primary/40 hover:-translate-y-1 ${
+                  productionRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                }`}
+                style={{ transitionDelay: `${i * 80}ms` }}
+              >
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <item.icon className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-muted/40 border border-border/40 rounded-2xl p-8">
+            <h3 className="text-xl font-semibold text-foreground mb-4">Mitigations</h3>
+            <ul className="space-y-3">
+              {productionMitigations.map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm">
+                  <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
