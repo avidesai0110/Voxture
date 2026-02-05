@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 50 50% 98%;
+    --foreground: 150 3% 13%;
+    --card: 0 0% 100%;
+    --card-foreground: 150 3% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 3% 13%;
+    --primary: 182 63% 34%;
+    --primary-foreground: 50 50% 98%;
+    --secondary: 150 3% 93%;
+    --secondary-foreground: 150 3% 13%;
+    --muted: 150 3% 93%;
+    --muted-foreground: 150 3% 45%;
+    --accent: 150 3% 93%;
+    --accent-foreground: 150 3% 13%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 150 3% 86%;
+    --input: 150 3% 86%;
+    --ring: 182 63% 34%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 150 3% 13%;
+    --foreground: 50 50% 98%;
+    --card: 150 3% 17%;
+    --card-foreground: 50 50% 98%;
+    --popover: 150 3% 17%;
+    --popover-foreground: 50 50% 98%;
+    --primary: 182 63% 34%;
+    --primary-foreground: 50 50% 98%;
+    --secondary: 150 3% 20%;
+    --secondary-foreground: 50 50% 98%;
+    --muted: 150 3% 20%;
+    --muted-foreground: 150 3% 60%;
+    --accent: 150 3% 20%;
+    --accent-foreground: 50 50% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 150 3% 25%;
+    --input: 150 3% 25%;
+    --ring: 182 63% 34%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom scrollbar for dark mode */
+.dark::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.dark::-webkit-scrollbar-track {
+  background: hsl(150 3% 13%);
+}
+.dark::-webkit-scrollbar-thumb {
+  background: hsl(150 3% 30%);
+  border-radius: 4px;
+}
+.dark::-webkit-scrollbar-thumb:hover {
+  background: hsl(150 3% 40%);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Code block syntax highlighting */
+.syntax-key {
+  color: #4ade80;
+}
+.syntax-string {
+  color: #60a5fa;
+}
+.syntax-number {
+  color: #f472b6;
+}
+.syntax-comment {
+  color: #6b7280;
+}
