@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { ArrowRight, ArrowDown, Menu, X, Check, Mic, Waves, Shield, Zap, BarChart3, Code2, Clock, Globe, Cpu, Volume2, Link2 } from "lucide-react"
+import { ArrowRight, ArrowDown, Menu, X, Check, Mic, Zap, BarChart3, Link2, Target } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 function useInView(threshold = 0.1) {
@@ -37,12 +37,14 @@ function TypeWriter({ words, className }: { words: string[]; className?: string 
 
   useEffect(() => {
     const word = words[currentWordIndex]
+    let pauseId: ReturnType<typeof setTimeout> | null = null
+
     const timeout = setTimeout(() => {
       if (!isDeleting) {
         if (currentText.length < word.length) {
           setCurrentText(word.slice(0, currentText.length + 1))
         } else {
-          setTimeout(() => setIsDeleting(true), 2000)
+          pauseId = setTimeout(() => setIsDeleting(true), 2000)
         }
       } else {
         if (currentText.length > 0) {
@@ -54,7 +56,10 @@ function TypeWriter({ words, className }: { words: string[]; className?: string 
       }
     }, isDeleting ? 50 : 100)
 
-    return () => clearTimeout(timeout)
+    return () => {
+      clearTimeout(timeout)
+      if (pauseId) clearTimeout(pauseId)
+    }
   }, [currentText, isDeleting, currentWordIndex, words])
 
   return (
@@ -134,191 +139,71 @@ function FloatingMetric({ label, value, delay }: { label: string; value: string;
   )
 }
 
-const capabilities = [
+const problemCards = [
   {
-    icon: Volume2,
-    title: "Noise Resilience",
-    description: "Test in 60-110dB environments from call centers to construction sites",
+    icon: Target,
+    title: "Your agent plateaued",
+    description: "It handles the easy calls. But complex ones fail — and you don't know which prompt changes will actually help.",
   },
   {
-    icon: Globe,
-    title: "Accent & Dialect",
-    description: "Evaluate across 50+ accents and regional speech patterns",
+    icon: Zap,
+    title: "Improvement is manual guesswork",
+    description: "Listen to calls. Guess at fixes. Deploy and pray. Repeat. There's no data-driven way to make your agent better.",
   },
   {
-    icon: Clock,
-    title: "Latency Analysis",
-    description: "Measure response times under real network conditions",
-  },
-  {
-    icon: Cpu,
-    title: "Edge Cases",
-    description: "Stress test with interruptions, overlapping speech, and more",
+    icon: BarChart3,
+    title: "You measure calls, not outcomes",
+    description: "Containment rate looks good. But you can't tell which calls actually achieved their goal — bookings, resolutions, whatever success looks like for you.",
   },
 ]
 
 const howItWorks = [
   {
-    icon: Code2,
+    icon: Link2,
     number: "01",
-    title: "Send Your Audio",
-    description: "POST audio samples with test parameters via our REST API or SDK.",
-  },
-  {
-    icon: Waves,
-    number: "02",
-    title: "Run Test Suite",
-    description: "We apply comprehensive scenarios: noise, accents, latency, and edge cases.",
+    title: "Connect",
+    description: "Plug into your Vapi/Retell agent in 2 minutes via webhook. We start ingesting every call.",
   },
   {
     icon: BarChart3,
-    number: "03",
-    title: "Get Detailed Reports",
-    description: "Receive accuracy metrics, failure analysis, and improvement suggestions.",
+    number: "02",
+    title: "Analyze",
+    description: "Our AI reviews every call, identifies failure patterns, and clusters them. \"34% of calls mentioning insurance fail at step 3.\"",
   },
   {
-    icon: Shield,
+    icon: Zap,
+    number: "03",
+    title: "Optimize",
+    description: "We auto-generate prompt fixes and A/B test them against live traffic. Statistical significance, not gut feeling.",
+  },
+  {
+    icon: Check,
     number: "04",
-    title: "Ship Confidently",
-    description: "Deploy knowing your voice AI handles real-world conditions.",
+    title: "Verify",
+    description: "We check downstream systems (CRM, calendar, PMS) to confirm calls achieved real outcomes — not just call scores.",
   },
 ]
 
-const productionChallenges = [
-  {
-    icon: Clock,
-    title: "Latency fragility disrupts flow",
-    description:
-      "Pauses, overlaps, and mishandled interruptions make interactions feel unnatural. Delays beyond ~800ms often feel disjointed. Causes: network jitter, non-streaming components, slow tool calls, aggressive VAD. Barge-in mishandling (agent talks over user) is a major frustration.",
-  },
-  {
-    icon: Link2,
-    title: "Integration errors compound at boundaries",
-    description:
-      "Mismatched components and vendor seams cause cascading failures. Partial transcripts trigger premature actions; stale intents hit real APIs.",
-  },
+const whoItsFor = [
   {
     icon: Mic,
-    title: "Conversation logic breaks under variability",
-    description:
-      "Context loss, unscripted deviations, and emotional cues cause loops or misinterpretations. Agents fail on \"maybe,\" self-corrections, multi-speaker chaos, and frustration.",
+    title: "Voice AI agencies",
+    description: "You've deployed agents for 10+ clients. They all plateau. Your team spends hours listening to calls and tweaking prompts. We automate that loop.",
   },
   {
-    icon: Shield,
-    title: "Reliability suffers from probabilistic risks",
-    description:
-      "Non-deterministic behaviors and hallucinations erode trust. High-stakes or irreversible actions make \"mostly right\" unacceptable.",
-  },
-  {
-    icon: Shield,
-    title: "Security & compliance gaps pose threats",
-    description:
-      "Prompt injection via voice, tool abuse, and data mishandling. PII/PHI risks; regulated environments need strong controls.",
-  },
-  {
-    icon: BarChart3,
-    title: "Infrastructure & observability deficiencies hide issues",
-    description:
-      "Poor scaling and monitoring let quiet degradations persist: dead air, rising WER, tool latency. Audio-specific failure modes are often untracked, leading to long MTTD.",
-  },
-  {
-    icon: Cpu,
-    title: "Architectural choices amplify problems",
-    description:
-      "Cascading pipelines mean more control and auditability but higher latency. End-to-end speech-to-speech is faster but less interceptable and inspectable. Many systems fail when demo assumptions meet production load and variance.",
-  },
-]
-
-const productionMitigations = [
-  "Streaming ASR/TTS and parallelization; edge or regional deployment; track P95/P99 latency.",
-  "Turn-taking: VAD tuning plus true barge-in; safe rewind and checkpointing for interruptions.",
-  "Layered architecture: real-time audio handling, text reasoning, and deterministic execution with policy guardrails.",
-  "Grounding: RAG where appropriate; confidence checks; human escalation for high-risk steps.",
-  "Security: prompt-injection defenses, least-privilege tool access, encryption, redaction, in-region processing.",
-  "Observability: audio metrics (WER trends, interruption rate, dead-air, barge-in failures, tool-call latency), traces, and eval harnesses.",
-  "Choose architecture deliberately and test at production load to validate latency vs. inspectability tradeoffs.",
-]
-
-const testimonials = [
-  {
-    quote: "Pokant found accuracy drops we never knew existed. Our users in noisy environments are finally having great experiences.",
-    author: "Sarah Chen",
-    role: "ML Lead at VoiceBot",
-    avatar: "SC",
-  },
-  {
-    quote: "The accent testing alone saved us months of user complaints. Integration took 15 minutes.",
-    author: "Marcus Rodriguez",
-    role: "Staff Engineer at AudioAI",
-    avatar: "MR",
-  },
-  {
-    quote: "We run every PR through Pokant now. Support tickets dropped 60% after launch.",
-    author: "Aisha Patel",
-    role: "VP Engineering at SpeakEasy",
-    avatar: "AP",
-  },
-]
-
-const pricingTiers = [
-  {
-    name: "Developer",
-    price: "$99",
-    period: "/mo",
-    description: "For individual developers and small projects",
-    features: [
-      "1,000 evaluations/month",
-      "10 test scenarios",
-      "Standard latency",
-      "Community support",
-      "REST API access",
-    ],
-    cta: "Start Free Trial",
-    highlighted: false,
-  },
-  {
-    name: "Team",
-    price: "$299",
-    period: "/mo",
-    description: "For teams shipping to production",
-    features: [
-      "10,000 evaluations/month",
-      "All scenarios + custom",
-      "Priority latency (<500ms)",
-      "Email + Slack support",
-      "CI/CD integrations",
-      "Detailed analytics",
-    ],
-    cta: "Start Free Trial",
-    highlighted: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
-    description: "For large-scale deployments",
-    features: [
-      "Unlimited evaluations",
-      "Custom scenario builder",
-      "Dedicated support",
-      "On-premise option",
-      "SLA guarantees",
-      "Advanced reporting",
-    ],
-    cta: "Contact Sales",
-    highlighted: false,
+    icon: Zap,
+    title: "Businesses with voice agents",
+    description: "You deployed a Vapi/Retell agent for scheduling, support, or sales. It works — but not well enough. We make it great, automatically.",
   },
 ]
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [heroLoaded, setHeroLoaded] = useState(false)
-  const capabilitiesRef = useInView()
+  const problemRef = useInView()
   const howItWorksRef = useInView()
-  const productionRef = useInView()
-  const codeRef = useInView()
-  const testimonialsRef = useInView()
-  const pricingRef = useInView()
+  const differentRef = useInView()
+  const whoItsForRef = useInView()
 
   useEffect(() => {
     setHeroLoaded(true)
@@ -330,31 +215,28 @@ export default function LandingPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/40">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link href="/" className="text-foreground font-bold text-xl tracking-tight">
+            <Link href="/" prefetch={false} className="text-foreground font-bold text-xl tracking-tight">
               pokant
             </Link>
 
             <div className="hidden md:flex items-center gap-8">
-              <Link href="#capabilities" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Capabilities
+              <Link href="#problem" prefetch={false} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                The Problem
               </Link>
-              <Link href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="#how-it-works" prefetch={false} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 How It Works
               </Link>
-              <Link href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Pricing
+              <Link href="#different" prefetch={false} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                What Makes Us Different
               </Link>
-              <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Docs
+              <Link href="#who-its-for" prefetch={false} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Who It&apos;s For
               </Link>
             </div>
 
             <div className="hidden md:flex items-center gap-4">
-              <Link href="/signin.html" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Sign in
-              </Link>
               <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                Get Started
+                Book a 15-min setup call
               </Button>
             </div>
 
@@ -367,21 +249,21 @@ export default function LandingPage() {
         {mobileMenuOpen && (
           <div className="md:hidden bg-background/95 backdrop-blur-xl border-t border-border/40">
             <div className="px-6 py-6 space-y-4">
-              <Link href="#capabilities" className="block text-sm text-muted-foreground hover:text-foreground">
-                Capabilities
+              <Link href="#problem" className="block text-sm text-muted-foreground hover:text-foreground">
+                The Problem
               </Link>
               <Link href="#how-it-works" className="block text-sm text-muted-foreground hover:text-foreground">
                 How It Works
               </Link>
-              <Link href="#pricing" className="block text-sm text-muted-foreground hover:text-foreground">
-                Pricing
+              <Link href="#different" className="block text-sm text-muted-foreground hover:text-foreground">
+                What Makes Us Different
               </Link>
-              <Link href="#" className="block text-sm text-muted-foreground hover:text-foreground">
-                Docs
+              <Link href="#who-its-for" className="block text-sm text-muted-foreground hover:text-foreground">
+                Who It&apos;s For
               </Link>
               <hr className="border-border/40" />
               <Button size="sm" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-                Get Started
+                Book a 15-min setup call
               </Button>
             </div>
           </div>
@@ -409,26 +291,14 @@ export default function LandingPage() {
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               {/* Left Column - Text */}
               <div>
-                <div
-                  className={`transition-all duration-1000 delay-100 ${
-                    heroLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                  }`}
-                >
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-6">
-                    <Zap className="w-3 h-3" />
-                    Comprehensive Voice AI Testing
-                  </div>
-                </div>
-
                 <h1
                   className={`text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6 leading-[1.1] transition-all duration-1000 delay-200 ${
                     heroLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                   }`}
                 >
-                  Test your voice AI
-                  <br />
+                  Don&apos;t just monitor—{" "}
                   <span className="text-primary">
-                    <TypeWriter words={["in real noise", "across accents", "at scale", "before launch"]} />
+                    <TypeWriter words={["deploy winners.", "optimize in production.", "verify outcomes."]} />
                   </span>
                 </h1>
 
@@ -437,7 +307,7 @@ export default function LandingPage() {
                     heroLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                   }`}
                 >
-                  The complete evaluation platform for voice AI. Test noise resilience, accent coverage, latency, and edge cases before your users do.
+                  Analyze every call, find failures, A/B test fixes. Your agent improves every week.
                 </p>
 
                 <div
@@ -445,12 +315,8 @@ export default function LandingPage() {
                     heroLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                   }`}
                 >
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 h-12">
-                    Get API Key
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                  <Button size="lg" variant="outline" className="border-border hover:bg-muted/50 h-12 bg-transparent">
-                    View Documentation
+                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 h-14 text-lg font-semibold">
+                    See your blind spots in 24 hours →
                   </Button>
                 </div>
               </div>
@@ -466,25 +332,25 @@ export default function LandingPage() {
                     <div className="w-3 h-3 rounded-full bg-red-500/80" />
                     <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
                     <div className="w-3 h-3 rounded-full bg-green-500/80" />
-                    <span className="text-xs text-muted-foreground font-mono ml-auto">Live Analysis</span>
+                    <span className="text-xs text-muted-foreground font-mono ml-auto">Call analysis</span>
                   </div>
 
                   <WaveformVisualization />
 
                   <div className="grid grid-cols-3 gap-3 mt-6">
-                    <FloatingMetric label="Accuracy" value="94.2%" delay={800} />
-                    <FloatingMetric label="Latency" value="124ms" delay={1000} />
-                    <FloatingMetric label="Scenarios" value="47/50" delay={1200} />
+                    <FloatingMetric label="Calls analyzed" value="2.4k" delay={800} />
+                    <FloatingMetric label="A/B tests live" value="8" delay={1000} />
+                    <FloatingMetric label="Outcomes verified" value="847" delay={1200} />
                   </div>
                 </div>
 
-                {/* Floating badges */}
+                {/* Floating badge */}
                 <div
                   className={`absolute -top-4 -right-4 bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-1.5 transition-all duration-1000 delay-700 ${
                     heroLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
                   }`}
                 >
-                  <span className="text-xs font-medium text-green-500">All Tests Passing</span>
+                  <span className="text-xs font-medium text-green-500">Improving</span>
                 </div>
               </div>
             </div>
@@ -504,32 +370,32 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Capabilities Section */}
-      <section id="capabilities" className="py-24 px-6 lg:px-8" ref={capabilitiesRef.ref}>
+      {/* The Problem Section */}
+      <section id="problem" className="py-24 px-6 lg:px-8" ref={problemRef.ref}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2
               className={`text-3xl lg:text-4xl font-bold text-foreground mb-4 transition-all duration-700 ${
-                capabilitiesRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                problemRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              Complete Testing Coverage
+              Why this matters
             </h2>
             <p
               className={`text-lg text-muted-foreground max-w-2xl mx-auto transition-all duration-700 delay-100 ${
-                capabilitiesRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                problemRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              Every dimension of voice AI performance, measured and analyzed
+              Three pain points you recognize
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {capabilities.map((item, i) => (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {problemCards.map((item, i) => (
               <div
                 key={item.title}
                 className={`group bg-card/40 backdrop-blur-sm border border-border/40 rounded-2xl p-6 transition-all duration-700 hover:border-primary/40 hover:-translate-y-1 ${
-                  capabilitiesRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                  problemRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
                 style={{ transitionDelay: `${i * 100}ms` }}
               >
@@ -560,7 +426,7 @@ export default function LandingPage() {
                 howItWorksRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              From integration to production confidence in four steps
+              Four simple steps. A continuous improvement loop.
             </p>
           </div>
 
@@ -585,266 +451,115 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Production Reality Section */}
-      <section className="py-24 px-6 lg:px-8" ref={productionRef.ref}>
+      {/* What Makes Us Different */}
+      <section id="different" className="py-24 px-6 lg:px-8" ref={differentRef.ref}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2
               className={`text-3xl lg:text-4xl font-bold text-foreground mb-4 transition-all duration-700 ${
-                productionRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                differentRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              Voice Agents Fail in Production
+              Everyone else measures calls. We measure outcomes.
             </h2>
             <p
               className={`text-lg text-muted-foreground max-w-3xl mx-auto transition-all duration-700 delay-100 ${
-                productionRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                differentRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              Voice agents look great in demos, but production deployment reveals interconnected systems
-              failures. Fixing them is holistic engineering; outcomes vary by domain and implementation.
-            </p>
-            <p
-              className={`text-lg text-muted-foreground max-w-3xl mx-auto mt-4 transition-all duration-700 delay-100 ${
-                productionRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
-            >
-              Failures show up across latency, integrations, conversation logic, reliability, security,
-              observability, and architecture—each category below has concrete mitigations.
+              Other tools tell you containment rate. We tell you what actually worked — which calls booked appointments, which resolved issues — and which prompt changes would improve that, already tested and proven.
             </p>
           </div>
 
           <div
-            className={`text-sm text-muted-foreground max-w-4xl mx-auto mb-10 transition-all duration-700 delay-150 ${
-              productionRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`grid md:grid-cols-2 gap-6 max-w-4xl mx-auto transition-all duration-700 delay-150 ${
+              differentRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            Real examples: a 2s delay to a simple billing change question makes users repeat themselves or
-            hang up; an agent hears a partial transcript and submits the wrong action before the user
-            finishes; a background speaker triggers an unintended intent and the wrong workflow step; a
-            model invents a policy detail in a customer call and trust collapses.
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {productionChallenges.map((item, i) => (
-              <div
-                key={item.title}
-                className={`group bg-card/40 backdrop-blur-sm border border-border/40 rounded-2xl p-6 transition-all duration-700 hover:border-primary/40 hover:-translate-y-1 ${
-                  productionRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                }`}
-                style={{ transitionDelay: `${i * 80}ms` }}
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <item.icon className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="bg-muted/40 border border-border/40 rounded-2xl p-8">
-            <h3 className="text-xl font-semibold text-foreground mb-4">Mitigations</h3>
-            <ul className="space-y-3">
-              {productionMitigations.map((item) => (
-                <li key={item} className="flex items-start gap-3 text-sm">
-                  <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-muted-foreground">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* Code Example */}
-      <section className="py-24 px-6 lg:px-8" ref={codeRef.ref}>
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <h2
-              className={`text-3xl lg:text-4xl font-bold text-foreground mb-4 transition-all duration-700 ${
-                codeRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
-            >
-              Simple Integration
-            </h2>
-            <p
-              className={`text-lg text-muted-foreground transition-all duration-700 delay-100 ${
-                codeRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
-            >
-              Start testing in minutes with our REST API
-            </p>
-          </div>
-
-          <div
-            className={`transition-all duration-1000 delay-200 ${
-              codeRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
-          >
-            <div className="bg-[#0d1117] rounded-2xl overflow-hidden border border-border/20 shadow-2xl">
-              <div className="flex items-center justify-between px-6 py-4 bg-[#161b22] border-b border-border/20">
-                <span className="text-sm text-gray-400 font-mono">test-voice-ai.ts</span>
-                <div className="flex gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-                  <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-                  <div className="w-3 h-3 rounded-full bg-[#27ca40]" />
+            <div className="bg-card/40 backdrop-blur-sm border border-border/40 rounded-2xl p-6">
+              <div className="text-xs text-muted-foreground mb-4 font-medium">Other tools</div>
+              <div className="bg-muted/30 rounded-xl p-6 border border-border/40">
+                <div className="text-2xl font-bold text-foreground mb-2">Containment: 78%</div>
+                <div className="flex items-center gap-2 text-green-500">
+                  <Check className="w-5 h-5" />
+                  <span className="text-sm">Generic monitoring dashboard</span>
                 </div>
               </div>
-              <pre className="p-6 overflow-x-auto text-sm">
-                <code className="text-gray-300 font-mono leading-relaxed">
-{`// Run comprehensive voice AI tests
-`}<span className="text-[#ff7b72]">const</span>{` results = `}<span className="text-[#ff7b72]">await</span>{` pokant.`}<span className="text-[#d2a8ff]">test</span>{`({
-  `}<span className="text-[#79c0ff]">audio</span>{`: audioFile,
-  `}<span className="text-[#79c0ff]">scenarios</span>{`: [`}<span className="text-[#a5d6ff]">'noise'</span>{`, `}<span className="text-[#a5d6ff]">'accents'</span>{`, `}<span className="text-[#a5d6ff]">'latency'</span>{`, `}<span className="text-[#a5d6ff]">'edge_cases'</span>{`],
-  `}<span className="text-[#79c0ff]">model</span>{`: `}<span className="text-[#a5d6ff]">'whisper-large-v3'</span>{`
-});
-
-`}<span className="text-[#8b949e]">// Response</span>{`
-{
-  `}<span className="text-[#a5d6ff]">"overall_score"</span>{`: `}<span className="text-[#79c0ff]">0.94</span>{`,
-  `}<span className="text-[#a5d6ff]">"noise_resilience"</span>{`: `}<span className="text-[#79c0ff]">0.87</span>{`,
-  `}<span className="text-[#a5d6ff]">"accent_coverage"</span>{`: `}<span className="text-[#79c0ff]">0.96</span>{`,
-  `}<span className="text-[#a5d6ff]">"latency_p95"</span>{`: `}<span className="text-[#79c0ff]">142</span>{`,
-  `}<span className="text-[#a5d6ff]">"edge_cases_passed"</span>{`: `}<span className="text-[#79c0ff]">47</span>{`/`}<span className="text-[#79c0ff]">50</span>{`
-}`}
-                </code>
-              </pre>
+            </div>
+            <div className="bg-card/40 backdrop-blur-sm border border-primary/40 rounded-2xl p-6">
+              <div className="text-xs text-primary font-medium mb-4">Us</div>
+              <div className="bg-primary/5 rounded-xl p-6 border border-primary/20">
+                <div className="text-sm font-medium text-muted-foreground mb-2">Appointments booked</div>
+                <div className="text-2xl font-bold text-foreground mb-4">847</div>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Missed:</span> <span>312</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Recoverable:</span> <span>128</span></div>
+                  <div className="flex justify-between text-primary font-semibold mt-2"><span>Impact:</span> <span>128 more successful calls</span></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-24 px-6 lg:px-8 bg-muted/30" ref={testimonialsRef.ref}>
+      {/* Who It's For */}
+      <section id="who-its-for" className="py-24 px-6 lg:px-8 bg-muted/30" ref={whoItsForRef.ref}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2
               className={`text-3xl lg:text-4xl font-bold text-foreground mb-4 transition-all duration-700 ${
-                testimonialsRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                whoItsForRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              Trusted by ML Teams
+              Who it&apos;s for
             </h2>
             <p
-              className={`text-lg text-muted-foreground transition-all duration-700 delay-100 ${
-                testimonialsRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              className={`text-lg text-muted-foreground max-w-2xl mx-auto transition-all duration-700 delay-100 ${
+                whoItsForRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              Companies shipping production voice AI rely on Pokant
+              Help yourself self-select
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((item, i) => (
+          <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {whoItsFor.map((item, i) => (
               <div
-                key={item.author}
-                className={`bg-card/40 backdrop-blur-sm border border-border/40 rounded-2xl p-8 transition-all duration-700 hover:border-primary/40 ${
-                  testimonialsRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                key={item.title}
+                className={`group bg-card/40 backdrop-blur-sm border border-border/40 rounded-2xl p-8 transition-all duration-700 hover:border-primary/40 hover:-translate-y-1 ${
+                  whoItsForRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
                 style={{ transitionDelay: `${i * 150}ms` }}
               >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-                    {item.avatar}
-                  </div>
-                  <div>
-                    <div className="font-semibold text-foreground text-sm">{item.author}</div>
-                    <div className="text-xs text-muted-foreground">{item.role}</div>
-                  </div>
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <item.icon className="w-6 h-6 text-primary" />
                 </div>
-                <p className="text-muted-foreground leading-relaxed">&ldquo;{item.quote}&rdquo;</p>
+                <h3 className="text-xl font-semibold text-foreground mb-3">{item.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{item.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="py-24 px-6 lg:px-8" ref={pricingRef.ref}>
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2
-              className={`text-3xl lg:text-4xl font-bold text-foreground mb-4 transition-all duration-700 ${
-                pricingRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
-            >
-              Simple Pricing
-            </h2>
-            <p
-              className={`text-lg text-muted-foreground transition-all duration-700 delay-100 ${
-                pricingRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
-            >
-              Start free, scale as you grow
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {pricingTiers.map((tier, i) => (
-              <div
-                key={tier.name}
-                className={`relative bg-card/40 backdrop-blur-sm border rounded-2xl p-8 transition-all duration-700 hover:-translate-y-1 ${
-                  tier.highlighted
-                    ? "border-primary/60 shadow-xl shadow-primary/10 lg:scale-105"
-                    : "border-border/40"
-                } ${pricingRef.isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-                style={{ transitionDelay: `${i * 150}ms` }}
-              >
-                {tier.highlighted && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
-                    Most Popular
-                  </div>
-                )}
-                <div className="mb-8">
-                  <h3 className="text-xl font-semibold text-foreground mb-2">{tier.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-4">{tier.description}</p>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold text-foreground">{tier.price}</span>
-                    <span className="text-muted-foreground">{tier.period}</span>
-                  </div>
-                </div>
-                <ul className="space-y-3 mb-8">
-                  {tier.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3 text-sm">
-                      <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span className="text-muted-foreground">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  className={`w-full ${
-                    tier.highlighted
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : "bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
-                  }`}
-                >
-                  {tier.cta}
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
+      {/* Final CTA Section */}
       <section className="py-24 px-6 lg:px-8 border-t border-border/40 bg-muted/30">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            Ready to test your voice AI?
+            See your agent&apos;s blind spots in 24 hours.
           </h2>
           <p className="text-lg text-muted-foreground mb-8">
-            Get started for free. No credit card required.
+            Connect your Vapi agent. Get your first failure analysis within 24 hours. No commitment.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 h-12">
-              Get API Key
+              Book a 15-min setup call
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button size="lg" variant="outline" className="border-border hover:bg-muted/50 h-12 bg-transparent">
-              Schedule Demo
-            </Button>
           </div>
+          <p className="text-sm text-muted-foreground mt-6">
+            Free for qualifying teams during beta. 3 spots remaining.
+          </p>
         </div>
       </section>
 
@@ -855,14 +570,14 @@ export default function LandingPage() {
             <div>
               <div className="font-bold text-foreground text-lg mb-4">pokant</div>
               <p className="text-sm text-muted-foreground">
-                Comprehensive voice AI testing for production
+                Your voice agent gets better every week — better calls, fewer failures
               </p>
             </div>
             <div>
               <div className="text-sm font-semibold text-foreground mb-3">Product</div>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link href="#" className="hover:text-foreground transition-colors">API</Link></li>
-                <li><Link href="#pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
+                <li><Link href="#who-its-for" className="hover:text-foreground transition-colors">Who It&apos;s For</Link></li>
                 <li><Link href="#" className="hover:text-foreground transition-colors">Documentation</Link></li>
               </ul>
             </div>
